@@ -1,0 +1,10 @@
+---
+applications:
+- name: boyuan-demo
+  memory: 128M
+  instances: 1
+  command: npm run start
+  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+  service:
+    - demoDB
+    - boyuanSe
