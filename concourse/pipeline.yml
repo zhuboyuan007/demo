@@ -1,3 +1,10 @@
+resources_types:
+  - name: pull-request
+    type: docker-image
+    source: 
+      repository: jtarchie/pr
+
+
 resources:
   - name: git-master-branch
     type: git
@@ -13,7 +20,13 @@ resources:
       password: ((cf-password))
       organization: ((cf-org))
       space: ((cf-dev-space))
-
+  - name: git-pull-request
+    type: pull-request
+    source:
+      access_token: ((github-access))
+      private_key: ((github-private-key))
+      uri: git@github.com:zhuboyuan007/demo
+      repo: zhuboyuan007/demo
 
 jobs:
   - name: cf-deploy
@@ -35,3 +48,33 @@ jobs:
           current_app_name: brians-fun-api
           environment_variables:
             NODE_ENV: "development"
+  - name: github-pull
+    plan:
+      - get: git-pull-request
+        trigger: true
+      - task: build-server
+        input_mapping:
+          server-resource: git-pull-request
+        output_mapping:
+          output-resource: built-server
+        file: git-pull-request/build.yml
+        params:
+          NODE_ENV: development
+      - task: tester 
+        input_mapping: 
+          server-resource: built-server
+        file: git-build-server/test.yml
+        on_success: 
+          put: git-pull-request
+          params: 
+            path: git-pull-request
+            status: success
+        on_failure: 
+          put: git-pull-request
+          params: 
+            path: git-pull-request
+            status: failure
+  
+
+
+
