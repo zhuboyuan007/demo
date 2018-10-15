@@ -2,4 +2,3 @@ node_modules/
 dist/
 concourse/credentials.yml
 .DS_Store
-*/.DS_Store
